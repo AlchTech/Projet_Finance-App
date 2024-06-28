@@ -1,4 +1,5 @@
 .accueil{
-    margin: 1%;
-    height: 32vw;
+    margin-block: 2rem;
+    padding-inline-start: 2rem;
+    height: 100vw;
 }

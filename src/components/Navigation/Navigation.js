@@ -27,7 +27,7 @@ function Accueil() {
                 <nav>
                     <ul>
                         <li><Link to="/">Accueil</Link></li>
-                        <li><Link to="/patrimoine">Patrimoine</Link></li>
+                        <li><Link to="/patrimoines">Patrimoines</Link></li>
                         <li><Link to="/action">Action</Link></li>
                         <li><Link to="/stats">Statistiques</Link></li>
                     </ul>

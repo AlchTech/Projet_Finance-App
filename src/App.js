@@ -3,7 +3,8 @@ import './styles/App.css';
 import React from 'react';
 // Pages :
 import Accueil from './pages/Accueil/Accueil.js';
-
+import Patrimoines from './pages/Patrimoine/Patrimoines.js';
+import Action from './pages/Action/Action.js';
 // Routes :
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
@@ -19,12 +20,12 @@ function App() {
           <Navigation /> {/* Composant de navigation */}
           <Routes>
             <Route path="/" element={<Accueil />} />
+            <Route path="/patrimoines" element={<Patrimoines />} />
+            <Route path="/action" element={<Action />} />
           </Routes>
         </Router>
       </header>
-      <footer>
-        <Footer />
-      </footer>
+      <Footer /> {/* Composant de pied de page */}
     </div>
   );
 }
