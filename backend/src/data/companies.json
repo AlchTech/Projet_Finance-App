@@ -1,0 +1,44 @@
+[
+  {
+    "id": "85c74ee1abf2",
+    "domaine": "Technologie",
+    "subdomaine": "SaaS",
+    "nom": "Salesforce",
+    "ticker": "CRM",
+    "prix": 300,
+    "dividende": 10,
+    "description": "Salesforce.com, inc. est une entreprise américaine d'édition de logiciels, principalement connue pour son CRM, qui permet à une entreprise de gérer ses relations avec ses clients.",
+    "PEA": false,
+    "type_investissement": "Growth",
+    "capitalisation": 220000000000,
+    "dettes": 0
+  },
+  {
+    "id": "eb82fd9bf5f5",
+    "domaine": "Water",
+    "subdomaine": "Water",
+    "nom": "Veolia",
+    "ticker": "VIE",
+    "prix": 25,
+    "dividende": 1,
+    "description": "Veolia Environnement est une entreprise française, spécialisée dans la gestion de l'eau, la gestion des déchets et l'énergie.",
+    "PEA": true,
+    "type_investissement": "Value",
+    "capitalisation": 12000000000,
+    "dettes": 0
+  },
+  {
+    "id": "c98e3da33b7c",
+    "domaine": "Luxe",
+    "subdomaine": "Vêtements",
+    "nom": "LVMH",
+    "ticker": "MC",
+    "prix": 500,
+    "dividende": 20,
+    "description": "LVMH Moët Hennessy Louis Vuitton SE, plus connu sous le nom de LVMH, est un groupe français d'entreprises fondé par Alain Chevalier et Henry Racamier devenu le leader mondial de l'industrie du luxe en termes de chiffre d'affaires.",
+    "PEA": true,
+    "type_investissement": "Growth",
+    "capitalisation": 300000000000,
+    "dettes": 0
+  }
+]

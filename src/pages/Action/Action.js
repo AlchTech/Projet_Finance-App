@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { saveAs } from 'file-saver';
 import './styles/action.css';
-import data from '../../data/entreprise.json'; // Assurez-vous que le chemin est correct
+import initialData from '../../data/entreprise.json'; // Assurez-vous que le chemin est correct
 
 function Action() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedAction, setSelectedAction] = useState(null);
-    const [entrepriseData, setEntrepriseData] = useState(data); // Utilisez un état local pour stocker les données d'entreprise
+    const [entrepriseData, setEntrepriseData] = useState(initialData);
+    const [newDomaine, setNewDomaine] = useState('');
+    const [newSousDomaine, setNewSousDomaine] = useState({ nom: '', domaineId: '' });
     const [newEntreprise, setNewEntreprise] = useState({
         nom: '',
         ticker: '',
@@ -13,12 +16,27 @@ function Action() {
         prix_action: '',
         dividende: '',
         description: '',
-        pea: false
+        pea: false,
+        sousDomaineId: ''
     });
+
+    useEffect(() => {
+        // Lire les données du fichier JSON local s'il existe
+        const savedData = localStorage.getItem('entrepriseData');
+        if (savedData) {
+            setEntrepriseData(JSON.parse(savedData));
+        }
+    }, []);
+
+    const saveDataToFile = (data) => {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        saveAs(blob, 'entreprise.json');
+        localStorage.setItem('entrepriseData', JSON.stringify(data));
+    };
 
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
-        setSelectedAction(null); // Réinitialise l'action sélectionnée lorsqu'on change la recherche
+        setSelectedAction(null);
     };
 
     const handleActionClick = (entreprise) => {
@@ -66,7 +84,8 @@ function Action() {
             }));
 
             setEntrepriseData(updatedData);
-            setSelectedAction(null); // Désélectionner l'action après la modification
+            setSelectedAction(null);
+            saveDataToFile(updatedData);
         }
     };
 
@@ -83,7 +102,53 @@ function Action() {
             }));
 
             setEntrepriseData(updatedData);
-            setSelectedAction(null); // Désélectionner l'action après la suppression
+            setSelectedAction(null);
+            saveDataToFile(updatedData);
+        }
+    };
+
+    const handleAddDomaine = () => {
+        if (newDomaine.trim() !== '') {
+            const updatedData = [
+                ...entrepriseData,
+                {
+                    id: (entrepriseData.length + 1).toString(),
+                    nom: newDomaine.trim(),
+                    sous_domaines: []
+                }
+            ];
+            setEntrepriseData(updatedData);
+            setNewDomaine('');
+            saveDataToFile(updatedData);
+        } else {
+            alert('Veuillez entrer un nom de domaine valide.');
+        }
+    };
+
+    const handleAddSousDomaine = () => {
+        const { nom, domaineId } = newSousDomaine;
+        if (nom.trim() !== '' && domaineId.trim() !== '') {
+            const updatedData = entrepriseData.map(domaine => {
+                if (domaine.id === domaineId) {
+                    return {
+                        ...domaine,
+                        sous_domaines: [
+                            ...domaine.sous_domaines,
+                            {
+                                id: (domaine.sous_domaines.length + 1).toString(),
+                                nom: nom.trim(),
+                                entreprises: []
+                            }
+                        ]
+                    };
+                }
+                return domaine;
+            });
+            setEntrepriseData(updatedData);
+            setNewSousDomaine({ nom: '', domaineId: '' });
+            saveDataToFile(updatedData);
+        } else {
+            alert('Veuillez entrer un nom de sous-domaine et sélectionner un domaine.');
         }
     };
 
@@ -95,7 +160,8 @@ function Action() {
             prix_action,
             dividende,
             description,
-            pea
+            pea,
+            sousDomaineId
         } = newEntreprise;
 
         if (
@@ -104,25 +170,31 @@ function Action() {
             type.trim() !== '' &&
             prix_action.trim() !== '' &&
             dividende.trim() !== '' &&
-            description.trim() !== ''
+            description.trim() !== '' &&
+            sousDomaineId.trim() !== ''
         ) {
             const updatedData = entrepriseData.map(domaine => ({
                 ...domaine,
-                sous_domaines: domaine.sous_domaines.map(sousDomaine => ({
-                    ...sousDomaine,
-                    entreprises: [
-                        ...sousDomaine.entreprises,
-                        {
-                            nom: nom.trim(),
-                            ticker: ticker.trim(),
-                            type: type.trim(),
-                            prix_action: prix_action.trim(),
-                            dividende: dividende.trim(),
-                            description: description.trim(),
-                            pea: pea
-                        }
-                    ]
-                }))
+                sous_domaines: domaine.sous_domaines.map(sousDomaine => {
+                    if (sousDomaine.id === sousDomaineId) {
+                        return {
+                            ...sousDomaine,
+                            entreprises: [
+                                ...sousDomaine.entreprises,
+                                {
+                                    nom: nom.trim(),
+                                    ticker: ticker.trim(),
+                                    type: type.trim(),
+                                    prix_action: prix_action.trim(),
+                                    dividende: dividende.trim(),
+                                    description: description.trim(),
+                                    pea: pea
+                                }
+                            ]
+                        };
+                    }
+                    return sousDomaine;
+                })
             }));
 
             setEntrepriseData(updatedData);
@@ -133,14 +205,15 @@ function Action() {
                 prix_action: '',
                 dividende: '',
                 description: '',
-                pea: false
+                pea: false,
+                sousDomaineId: ''
             });
+            saveDataToFile(updatedData);
         } else {
             alert('Veuillez remplir tous les champs pour ajouter une nouvelle entreprise.');
         }
     };
 
-    // Fonction pour vérifier si un sous-domaine doit être affiché en fonction des actions filtrées
     const shouldDisplaySousDomaine = (sousDomaine) => {
         return sousDomaine.entreprises.some(entreprise =>
             entreprise.nom.toLowerCase().includes(searchTerm.toLowerCase())
@@ -190,7 +263,51 @@ function Action() {
             )}
 
             <div className="add-action">
+                <h3>Ajouter un nouveau domaine :</h3>
+                <input
+                    type="text"
+                    placeholder="Nom du domaine"
+                    value={newDomaine}
+                    onChange={(e) => setNewDomaine(e.target.value)}
+                />
+                <button onClick={handleAddDomaine}>Ajouter Domaine</button>
+            </div>
+
+            <div className="add-action">
+                <h3>Ajouter un nouveau sous-domaine :</h3>
+                <select
+                    value={newSousDomaine.domaineId}
+                    onChange={(e) => setNewSousDomaine({ ...newSousDomaine, domaineId: e.target.value })}
+                >
+                    <option value="">Sélectionnez un domaine</option>
+                    {entrepriseData.map(domaine => (
+                        <option key={domaine.id} value={domaine.id}>{domaine.nom}</option>
+                    ))}
+                </select>
+                <input
+                    type="text"
+                    placeholder="Nom du sous-domaine"
+                    value={newSousDomaine.nom}
+                    onChange={(e) => setNewSousDomaine({ ...newSousDomaine, nom: e.target.value })}
+                />
+                <button onClick={handleAddSousDomaine}>Ajouter Sous-Domaine</button>
+            </div>
+
+            <div className="add-action">
                 <h3>Ajouter une nouvelle entreprise :</h3>
+                <select
+                    value={newEntreprise.sousDomaineId}
+                    onChange={(e) => setNewEntreprise({ ...newEntreprise, sousDomaineId: e.target.value })}
+                >
+                    <option value="">Sélectionnez un sous-domaine</option>
+                    {entrepriseData.flatMap(domaine =>
+                        domaine.sous_domaines.map(sousDomaine => (
+                            <option key={sousDomaine.id} value={sousDomaine.id}>
+                                {domaine.nom} - {sousDomaine.nom}
+                            </option>
+                        ))
+                    )}
+                </select>
                 <input
                     type="text"
                     placeholder="Nom de l'entreprise"
@@ -211,7 +328,7 @@ function Action() {
                 />
                 <input
                     type="text"
-                    placeholder="Prix de l'action"
+                    placeholder="Prix Action"
                     value={newEntreprise.prix_action}
                     onChange={(e) => setNewEntreprise({ ...newEntreprise, prix_action: e.target.value })}
                 />
@@ -228,57 +345,56 @@ function Action() {
                     onChange={(e) => setNewEntreprise({ ...newEntreprise, description: e.target.value })}
                 />
                 <label>
-                    PEA :
                     <input
                         type="checkbox"
                         checked={newEntreprise.pea}
                         onChange={(e) => setNewEntreprise({ ...newEntreprise, pea: e.target.checked })}
                     />
+                    PEA
                 </label>
-                <button onClick={handleAddEntreprise}>Ajouter</button>
+                <button onClick={handleAddEntreprise}>Ajouter Entreprise</button>
             </div>
 
-            <div className="action-list">
+            <div className="entreprise-list">
                 {entrepriseData.map(domaine => (
                     <div key={domaine.id}>
-                        {domaine.sous_domaines.map(sousDomaine => (
-                            shouldDisplaySousDomaine(sousDomaine) && (
-                                <div key={sousDomaine.id}>
-                                    <h4>{sousDomaine.nom}</h4>
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th>Entreprise</th>
-                                                <th>Ticker</th>
-                                                <th>Type</th>
-                                                <th>Prix Action</th>
-                                                <th>Dividende</th>
-                                                <th>Description</th>
-                                                <th>PEA</th>
-                                                <th>Actions</th>
+                        <h3>{domaine.nom}</h3>
+                        {domaine.sous_domaines.filter(shouldDisplaySousDomaine).map(sousDomaine => (
+                            <div key={sousDomaine.id}>
+                                <h4>{sousDomaine.nom}</h4>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Entreprise</th>
+                                            <th>Ticker</th>
+                                            <th>Type</th>
+                                            <th>Prix Action</th>
+                                            <th>Dividende</th>
+                                            <th>Description</th>
+                                            <th>PEA</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {sousDomaine.entreprises.filter(entreprise =>
+                                            entreprise.nom.toLowerCase().includes(searchTerm.toLowerCase())
+                                        ).map(entreprise => (
+                                            <tr key={entreprise.nom}>
+                                                <td>{entreprise.nom}</td>
+                                                <td>{entreprise.ticker}</td>
+                                                <td>{entreprise.type}</td>
+                                                <td>{entreprise.prix_action}</td>
+                                                <td>{entreprise.dividende}</td>
+                                                <td>{entreprise.description}</td>
+                                                <td>{entreprise.pea ? 'Oui' : 'Non'}</td>
+                                                <td>
+                                                    <button onClick={() => handleActionClick(entreprise)}>Sélectionner</button>
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            {sousDomaine.entreprises.map(entreprise => (
-                                                entreprise.nom.toLowerCase().includes(searchTerm.toLowerCase()) && (
-                                                    <tr key={entreprise.nom}>
-                                                        <td>{entreprise.nom}</td>
-                                                        <td>{entreprise.ticker}</td>
-                                                        <td>{entreprise.type}</td>
-                                                        <td>{entreprise.prix_action}</td>
-                                                        <td>{entreprise.dividende}</td>
-                                                        <td>{entreprise.description}</td>
-                                                        <td>{entreprise.pea ? 'Oui' : 'Non'}</td>
-                                                        <td>
-                                                            <button onClick={() => handleActionClick(entreprise)}>Sélectionner</button>
-                                                        </td>
-                                                    </tr>
-                                                )
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         ))}
                     </div>
                 ))}
