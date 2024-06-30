@@ -1,1 +1,0 @@
-import { Footer, Navigation } from "./components";

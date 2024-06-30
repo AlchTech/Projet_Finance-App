@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url'; // Importez fileURLToPath pour convertir l'URL en chemin de fichier
+import cors from 'cors';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -8,6 +9,10 @@ const __dirname = path.dirname(__filename);
 import companyRoutes from './src/routes/companyRoutes.mjs';
 
 const app = express();
+
+// Middleware pour autoriser les requêtes CORS
+app.use(cors());
+
 
 // Middleware pour parser le JSON des corps de requête
 app.use(express.json());
