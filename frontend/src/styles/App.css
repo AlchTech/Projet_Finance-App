@@ -1,0 +1,16 @@
+/* Root */
+:root {
+
+  /* Colors */
+  --color-primary: #262626;
+  --color-secondary: #6c5c3f;
+  --color-tertiary: #FFFFFF;
+
+
+  /* Background */
+  background-color: var(--color-primary);
+
+  /* Text */
+  color: var(--color-tertiary);
+  
+}

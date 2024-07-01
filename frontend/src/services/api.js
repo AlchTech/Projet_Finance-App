@@ -1,10 +1,9 @@
 import axios from 'axios';
 
-
 class Api {
     constructor() {
         this.api = axios.create({
-        baseURL: 'http://localhost:3000/api/companies',
+            baseURL: 'http://localhost:3000/api/companies',
         });
     }
 
@@ -23,8 +22,8 @@ class Api {
     async delete(endpoint) {
         return this.api.delete(endpoint);
     }
-  
 }
 
-export default new Api();
+const apiInstance = new Api();
 
+export default apiInstance;

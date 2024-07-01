@@ -1,15 +1,22 @@
 import fs from 'fs';
 import path from 'path';
-import * as data from '../data/companies.json' assert { type: 'json' };
+import { fileURLToPath } from 'url';
+import { createHash } from 'crypto'; // Importer la fonction createHash depuis le module crypto
 import CompanyModel from '../models/companyModel.mjs';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const companiesFilePath = path.resolve(__dirname, '../data/companies.json');
+
 class CompanyController {
+
     static loadData() {
-        let companies = [];
-        data.default.forEach(company => {
-            companies.push(new CompanyModel(company.id, company.domaine, company.subdomaine, company.nom, company.ticker, company.prix, company.dividende, company.description, company.PEA, company.type_investissement, company.capitalisation, company.dettes));
-        });
-        return companies;
+        try {
+            const companiesData = JSON.parse(fs.readFileSync(companiesFilePath, 'utf-8'));
+            return companiesData;
+        } catch (error) {
+            console.error('Error reading JSON file:', error);
+            return [];
+        }
     }
 
     /**
@@ -46,8 +53,52 @@ class CompanyController {
      * @returns {Object} - Retourne l'instance de l'entreprise créée.
      */
     static createCompany(companyData) {
-        const newCompany = new CompanyModel(companyData.id, companyData.domaine, companyData.subdomaine, companyData.nom, companyData.ticker, companyData.prix, companyData.dividende, companyData.description, companyData.PEA, companyData.type_investissement, companyData.capitalisation, companyData.dettes);
-        return newCompany.create();
+        let companiesData = this.loadData();
+        
+        // Générer un nouvel ID unique avec crypto
+        let newId;
+        const generateUniqueId = () => {
+            const id = createHash('sha256')
+                .update(companyData.nom + Date.now().toString())
+                .digest('hex');
+            return id.substr(0, 8); // Utiliser les 8 premiers caractères pour simplifier
+        };
+
+        do {
+            newId = generateUniqueId();
+        } while (companiesData.some(company => company.id === newId));
+
+        // Calculer le rendement du dividende en pourcentage
+        const dividendeYield = (companyData.dividende / companyData.prix) * 100;
+
+        // Créer une nouvelle instance de CompanyModel avec les données fournies
+        const newCompany = new CompanyModel(
+            newId,
+            companyData.domaine,
+            companyData.subdomaine,
+            companyData.nom,
+            companyData.ticker,
+            companyData.prix,
+            companyData.dividende,
+            dividendeYield,
+            companyData.description,
+            companyData.PEA,
+            companyData.type_investissement,
+            companyData.capitalisation,
+            companyData.dettes
+        );
+
+        // Ajouter la nouvelle entreprise à la liste
+        companiesData.push(newCompany);
+
+        // Sauvegarde des données mises à jour dans le fichier JSON
+        try {
+            fs.writeFileSync(companiesFilePath, JSON.stringify(companiesData, null, 2));
+        } catch (error) {
+            console.error('Error saving JSON file:', error);
+        }
+
+        return newCompany;
     }
 
     /**
@@ -57,12 +108,20 @@ class CompanyController {
      * @returns {Object | undefined} - Retourne les données mises à jour de l'entreprise ou undefined si non trouvée.
      */
     static updateCompany(id, newData) {
-        let companies = this.loadData();
-        const companyToUpdate = CompanyModel.getById(companies, id);
+        let companiesData = this.loadData();
+        const companyToUpdate = CompanyModel.getById(companiesData, id);
         if (companyToUpdate) {
-            const updatedCompany = { ...companyToUpdate, ...newData };
-            companies = companies.map(company => (company.id === id ? updatedCompany : company));
-            return updatedCompany;
+            // Mettre à jour les données de l'entreprise
+            Object.assign(companyToUpdate, newData);
+
+            // Mettre à jour la liste des entreprises dans le fichier JSON
+            try {
+                fs.writeFileSync(companiesFilePath, JSON.stringify(companiesData, null, 2));
+            } catch (error) {
+                console.error('Error saving JSON file:', error);
+            }
+
+            return companyToUpdate;
         }
         return undefined;
     }
@@ -73,11 +132,20 @@ class CompanyController {
      * @returns {Array | undefined} - Retourne le tableau de données d'entreprises après suppression ou undefined si non trouvée.
      */
     static deleteCompany(id) {
-        let companies = this.loadData();
-        const companyToDelete = CompanyModel.getById(companies, id);
-        if (companyToDelete) {
-            companies = companies.filter(company => company.id !== id);
-            return companies;
+        let companiesData = this.loadData();
+        const index = companiesData.findIndex(company => company.id === id);
+        if (index !== -1) {
+            // Supprimer l'entreprise du tableau
+            companiesData.splice(index, 1);
+
+            // Mettre à jour la liste des entreprises dans le fichier JSON
+            try {
+                fs.writeFileSync(companiesFilePath, JSON.stringify(companiesData, null, 2));
+            } catch (error) {
+                console.error('Error saving JSON file:', error);
+            }
+
+            return companiesData;
         }
         return undefined;
     }

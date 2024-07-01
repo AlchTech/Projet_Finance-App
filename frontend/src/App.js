@@ -1,35 +1,22 @@
-import logo from './logo.svg';
-import './App.css';
-import api from './services/api';
-import { useEffect } from 'react';
+import './styles/App.css';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
+import Accueil from './pages/Accueil/Accueil';
+import Navigation from './components/Navigation/Navigation'; // Assuming you'll use it
+import Action from './pages/Action/Action';
 
 function App() {
-  useEffect(() => {
-    api.get('/')
-      .then(response => {
-        console.log(response.data);
-        // Utilisez les données récupérées ici
-      })
-      .catch(error => {
-        console.error('Erreur lors de la récupération des données:', error);
-      });
-  }, []);
+  
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Router>
+        <Navigation /> {/* Using Navigation component */}
+        <Routes>
+            <Route path="/" element={<Accueil />} />
+            <Route path="/action" element={<Action />} />
+            {/* Add other routes here */}
+        </Routes>
+      </Router>
     </div>
   );
 }
