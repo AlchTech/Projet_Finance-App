@@ -14,23 +14,18 @@
 
 #### C'est quoi le PIB ?
 Le Produit Intérieur Brut (PIB) est une mesure qui indique la valeur totale de tous les biens et services produits dans un pays pendant une période donnée, généralement une année.
+Une économie basée uniquement sur la productivité est susceptible d'échouer car elle néglige les inégalités sociales, l'impact environnemental et le bien-être humain essentiels à long terme.
 
 ### Y a t-il plus pertinent que le PIB ?
 L'Indice de Développement Humain (IDH) est un index mondial qui est calculé et publié chaque année par le Programme des Nations Unies pour le développement (PNUD). Cet indice classe les pays en fonction de leur niveau de développement humain en prenant en compte trois principaux aspects :
 
 - Revenu par habitant : Mesuré par le PIB par habitant ajusté selon la parité de pouvoir d'achat.
-
 - Espérance de vie : Indicateur de la santé et du bien-être des citoyens d'un pays.
-
 - Niveau d'éducation : Mesuré par la durée moyenne de scolarisation des adultes et le taux de scolarisation combinés.
-
-Une économie basée uniquement sur la productivité est susceptible d'échouer car elle néglige les inégalités sociales, l'impact environnemental et le bien-être humain essentiels à long terme.
 
 #### Taux de chômage
 Le chômage est le fait pour une personne en âge de travailler d'être sans emploi, disponible pour travailler et en recherche active d'un emploi rémunéré.
 
-### Y a t-il plus pertinent que le Taux de chômage ?
- Il serait intéréssant de créer une sorte de  indicateurs d'inactivité économique productivité, l'investissement, la consommation des ménages et les politiques monétaires
 
 ### Macroéconomique
 
